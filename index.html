@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Web3.js Demo</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script src="./js/web3.min.js"></script>
+    <script src="./js/abi-decoder.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.0.0/mdb.min.css"
+  rel="stylesheet"
+/>
+
+  </head>
+  <body>
+
+    
+    <div class="p-5 text-center bg-light">
+      <h1 class="mb-3">Crypto Splitwise</h1>
+    </div>
+ 
+
+    <div class="d-flex justify-content-between">
+    <div class="main" >
+
+      
+      <h2>Add IOU</h2>
+
+      <div class="form-outline mb-4">
+      <input type="text" id="creditor" class = "form-control" />
+      <label for="creditor" class = "form-label"> Address Of Person You Owe </label>
+      </div>
+
+      <div class="form-outline mb-4">
+      <input  type="text" id="amount" class = "form-control" />
+      <label  class = "form-label" for="amount" >Amount you owe them:</label>
+      </div>
+
+      <button id="addiou" class = "btn btn-primary">Add IOU</button>
+
+      
+
+      <h2>Users</h2>
+      <ul id="all_users"></ul>
+      <pre id="log"></pre>
+
+
+     
+
+    </div>
+
+    <div class="panel panel_right">
+      <h2>My Account</h2>
+      <select id="myaccount" class="account"></select>
+      <p>Total Owed: <span id="total_owed"></span></p>
+      <p>Last Activity: <span id="last_active"></span></p>
+    </div>
+
+  </div>
+
+  <div class="wallet_addresses_panel">
+		<h2>Wallet Addresses</h2>
+		<ol class="wallet_addresses"></ol>
+	</div>
+
+    <script src="./js/jquery-3.2.1.slim.min.js"></script>
+    <script src="./js/abi.js"></script>
+    <script src="./config.js"></script>
+    <script src="./js/script.js"></script>
+    <script src="./js/ui.js"></script>
+    <script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.0.0/mdb.min.js"
+></script>
+  
+  </body>
+</html>

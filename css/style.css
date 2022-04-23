@@ -1,0 +1,10 @@
+@import '~mdb-ui-kit/css/mdb.min.css';
+body {
+ 	font-family: 'Source Sans Pro', 'Arial';
+	background-color:#EEE;
+	padding: 30px;
+}
+.main {
+	width: 50%;
+}
+

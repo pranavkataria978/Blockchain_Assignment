@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "ganache-cli": "^6.12.2",
+    "mdb-ui-kit": "^4.0.0"
+  }
+}
