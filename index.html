@@ -36,31 +36,43 @@
 
       <button id="addiou" class = "btn btn-primary">Add IOU</button>
 
-      
-
-      <h2>Users</h2>
-      <ul id="all_users"></ul>
-      <pre id="log"></pre>
-
-
-     
-
+    
     </div>
 
     <div class="panel panel_right">
       <h2>My Account</h2>
       <select id="myaccount" class="account"></select>
       <p>Total Owed: <span id="total_owed"></span></p>
+      <span id="who_owes"></span>
       <p>Last Activity: <span id="last_active"></span></p>
     </div>
 
   </div>
 
-  <div class="wallet_addresses_panel">
-		<h2>Wallet Addresses</h2>
-		<ol class="wallet_addresses"></ol>
-	</div>
+  <div class ="d-flex justify-content-between" >
 
+
+    <div class="wallet_addresses_panel">
+      <h2>Wallet Addresses</h2>
+      <table class="table table-hover table-bordered">
+        <tbody id="wallet_addresses">
+
+        </tbody>
+      </table>
+    </div>
+  
+    <div>
+      <h2>Users</h2>
+      <table  class="table table-hover table-bordered"><tbody id="all_users">
+
+      </tbody></table>
+      <pre id="log"></pre>
+    </div>
+   
+  
+
+  </div>
+  
     <script src="./js/jquery-3.2.1.slim.min.js"></script>
     <script src="./js/abi.js"></script>
     <script src="./config.js"></script>

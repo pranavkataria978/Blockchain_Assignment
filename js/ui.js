@@ -7,6 +7,17 @@ function timeConverter(UNIX_timestamp){
   return a.toLocaleString("en-US");
 }
 
+function updateWhoOwes(){
+
+    var temp;
+    id_user = $('#myaccount').val();
+    temp = getAssociatedTransfers(id_user);
+    console.log(id_user)
+    console.log(temp)
+    console.log(opts)
+  
+
+}
 
 /**
  * helper methods
@@ -20,7 +31,7 @@ function updateUserInfo(){
 
 // This code updates the 'Users' list in the UI with the results of your function
 function updateActiveUsers(){
-    $("#all_users").html(getUsers().map(function (u,i) { return "<li>"+u+"</li>" }));
+    $("#all_users").html(getUsers().map(function (u,i) { return "<tr><td>"+u+"</td></tr>" }));
 }
 
 /**
@@ -28,6 +39,7 @@ function updateActiveUsers(){
  */
 $("#myaccount").change(function() {
     web3.eth.defaultAccount = $(this).val();
+    updateWhoOwes();
     updateUserInfo();
 });
 
@@ -45,8 +57,12 @@ $("#addiou").click(function() {
 // Allows switching between accounts in 'My Account' 
 // and the 'fast-copy' in 'Address of person you owe
 var opts = web3.eth.accounts.map(function (a) { return '<option value="'+a+'">'+a+'</option>' })
+var addresses = web3.eth.accounts.map(function(a){
+  return a
+})
+// console.log(addresses)
 $(".account").html(opts);
-$(".wallet_addresses").html(web3.eth.accounts.map(function (a) { return '<li>'+a+'</li>' }))
+$("#wallet_addresses").html(web3.eth.accounts.map(function (a) { return '<tr><td>'+a+'</td></tr>' }))
 
 updateUserInfo();
 updateActiveUsers();

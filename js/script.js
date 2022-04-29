@@ -18,6 +18,7 @@ function getAssociatedTransfers(user){
     return transfers;
 }
 
+
 // Returns a list of all users in the system that 
 // currently owe or is being owed money
 function getUsers(addressOfContract) {

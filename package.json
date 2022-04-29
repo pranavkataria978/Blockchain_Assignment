@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "ganache": "^7.1.0",
     "ganache-cli": "^6.12.2",
     "mdb-ui-kit": "^4.0.0"
   }
