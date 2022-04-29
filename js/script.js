@@ -157,3 +157,17 @@ function log(description, obj) {
         $("#log").html($("#log").html() + logData);
     }
 }
+
+function data(id){
+
+    var data_final = []
+
+
+    data_final.push(BlockchainSplitwise.getDebtorFor(id))
+    data_final.push(BlockchainSplitwise.getCreditorFor(id))
+    data_final.push(BlockchainSplitwise.getAmountFor(id))
+
+
+    return data_final
+
+}
