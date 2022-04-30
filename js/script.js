@@ -10,7 +10,7 @@ var BlockchainSplitwiseContractSpec = web3.eth.contract(abi);
 var BlockchainSplitwise = BlockchainSplitwiseContractSpec.at(contractAddress)
 
 function getAssociatedTransfers(user){
-    var nTfs = BlockchainSplitwise.getDebitCount(user).toNumber();
+    var nTfs = BlockchainSplitwise.getTransactionsCount(user).toNumber();
     var transfers = []
     for (i =0; i<nTfs; i++){
         transfers.push(BlockchainSplitwise.getIthDebit(user, i));
@@ -23,11 +23,11 @@ function getAssociatedTransfers(user){
 // currently owe or is being owed money
 function getUsers(addressOfContract) {
     var users = new Set();
-    var nTfs = BlockchainSplitwise.getLastTransferIndex().toNumber();
+    var nTfs = BlockchainSplitwise.LatestTransferIndex().toNumber();
     for (i = 1; i<=nTfs; i++){
         if (!BlockchainSplitwise.isSettled(i)){
-            users.add(BlockchainSplitwise.getDebtorFor(i));
-            users.add(BlockchainSplitwise.getCreditorFor(i));
+            users.add(BlockchainSplitwise.getTransasctionDebtor(i));
+            users.add(BlockchainSplitwise.getTransactionCreditor(i));
         }
     }
 	return Array.from(users); 
@@ -38,37 +38,37 @@ function getTotalOwed(user) {
     var owed = 0;
     getAssociatedTransfers(user)
         .map(function (t) {
-            owed += BlockchainSplitwise.getAmountFor(t).toNumber();
+            owed += BlockchainSplitwise.getTransactionAmount(t).toNumber();
         })
     return owed;
 }
 
 // returns last active time since UNIX epoch or null.
 function getLastActive(user) {
-    var lastIndex = BlockchainSplitwise.getDebitCount(user).toNumber()-1;
+    var lastIndex = BlockchainSplitwise.getTransactionsCount(user).toNumber()-1;
     if (lastIndex < 0 ) return null;
 
     var lastTransferId = BlockchainSplitwise.getIthDebit(user, lastIndex);
-    return BlockchainSplitwise.getTimeOfTransfer(lastTransferId).toNumber();
+    return BlockchainSplitwise.getTransferTimeStamp(lastTransferId).toNumber();
 }
 
 // adds an IOU owed to the creditor for amount
 // Note: for better security, some operations should be deferred 
 // to the backend. However, gas-use will rocket. ok for now; 
 // this was probably the intended approach considering provided the BFS pathfinder
-function add_IOU(creditor, amount) {
+function addTransaction(creditor, amount) {
     var sender = $("#myaccount").find(":selected").text();
     var path = doBFS(creditor, sender);
     if (path == null || path.length == 0){
-        explicit_add_IOU(sender, creditor, amount);
+        explicit_addTransaction(sender, creditor, amount);
         log(sender.substring(38,42) + "---"+amount+"--->" + creditor.substring(38,42));
     } else {
         log("cycle detected: ", path);
         var history = [{id: -1, value: parseInt(amount, 10)}];
         for (i = path.length-1; i>0; i--){
             history.push({
-                id: BlockchainSplitwise.getHistory(path[i-1], path[i]).toNumber(),
-                value: BlockchainSplitwise.lookup(path[i-1], path[i]).toNumber()
+                id: BlockchainSplitwise.getTransactionHistory(path[i-1], path[i]).toNumber(),
+                value: BlockchainSplitwise.amountOwed(path[i-1], path[i]).toNumber()
             });
         }
         log("history", history);
@@ -77,19 +77,19 @@ function add_IOU(creditor, amount) {
 
         if (history[0].id == -1){
             for (i=1; i<history.length; i++){
-                BlockchainSplitwise.modify_IOU(history[i].id, history[0].value);
+                BlockchainSplitwise.modifyTransaction(history[i].id, history[0].value);
             }
             getSortedHistory(path, 0);
         } else {
             // modify minimum transaction
-            BlockchainSplitwise.modify_IOU(history[0].id, history[0].value);
+            BlockchainSplitwise.modifyTransaction(history[0].id, history[0].value);
             // add new transaction with the subtracted amount
-            explicit_add_IOU(sender, creditor, amount-history[0].value);
+            explicit_addTransaction(sender, creditor, amount-history[0].value);
             
             // replace existed transaction with the subtracted amount
             for (i=1; i<history.length; i++){
                 if (history[i].id == -1) continue;
-                BlockchainSplitwise.modify_IOU(
+                BlockchainSplitwise.modifyTransaction(
                     history[i].id, 
                     history[0].value
                 );
@@ -99,9 +99,9 @@ function add_IOU(creditor, amount) {
     }
 }
 
-function explicit_add_IOU(debtor, creditor, amount){
+function explicit_addTransaction(debtor, creditor, amount){
     log("IOU "+ web3.eth.defaultAccount + " "+ " " + creditor + " " + amount, null)
-    BlockchainSplitwise.add_IOU.sendTransaction(creditor, amount,
+    BlockchainSplitwise.addTransaction.sendTransaction(creditor, amount,
         {
             from: debtor,
             gas: 1000000
@@ -112,8 +112,8 @@ function getSortedHistory(path, amount){
     var history = [{id: -1, value: parseInt(amount, 10)}];
     for (i = path.length-1; i>0; i--){
         history.push({
-            id: BlockchainSplitwise.getHistory(path[i-1], path[i]).toNumber(),
-            value: BlockchainSplitwise.lookup(path[i-1], path[i]).toNumber()
+            id: BlockchainSplitwise.getTransactionHistory(path[i-1], path[i]).toNumber(),
+            value: BlockchainSplitwise.amountOwed(path[i-1], path[i]).toNumber()
         });
     }
     log("history", history);
@@ -127,7 +127,7 @@ function getNeighbors(user){
     neighbours = [];
     getAssociatedTransfers(user)
         .map(function (t) {
-            neighbours.push(BlockchainSplitwise.getCreditorFor(t));
+            neighbours.push(BlockchainSplitwise.getTransactionCreditor(t));
         })
     return neighbours;
 }
@@ -163,10 +163,10 @@ function data(id){
     var data_final = []
 
 
-    data_final.push(BlockchainSplitwise.getDebtorFor(id))
-    data_final.push(BlockchainSplitwise.getCreditorFor(id))
-    data_final.push(BlockchainSplitwise.getAmountFor(id))
-
+    data_final.push(BlockchainSplitwise.getTransasctionDebtor(id))
+    data_final.push(BlockchainSplitwise.getTransactionCreditor(id))
+    data_final.push(BlockchainSplitwise.getTransactionAmount(id))
+    data_final.push(BlockchainSplitwise.getTransactionSlab(id))
 
     return data_final
 

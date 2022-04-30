@@ -43,9 +43,11 @@ function updateHistory(){
     var cell1_h = heading_row.insertCell(0);
     var cell2_h = heading_row.insertCell(1);
     var cell3_h = heading_row.insertCell(2);
+    var cell4_h = heading_row.insertCell(3);
     cell1_h.innerHTML = "Debitor"
     cell2_h.innerHTML = "Creditor"
     cell3_h.innerHTML =  "Amount"
+    cell4_h.innerHTML =  "Transaction Slab"
   for(i = 0; i<transaction_list.length;i++){
 
     var answer = data(transaction_list[i]["c"][0])
@@ -58,9 +60,13 @@ function updateHistory(){
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
     var cell3 = row.insertCell(2);
+    var cell4 = row.insertCell(3);
+
     cell1.innerHTML = answer[0]
     cell2.innerHTML = answer[1];
     cell3.innerHTML = answer[2]["c"][0]
+    cell4.innerHTML = answer[3]
+
 
 
     //$("#history").html(data(transaction_list[i]["c"][0]).map(function (a,b,c) { return '<tr><td>'+a+b+c+'</td></tr>' }))
@@ -82,7 +88,7 @@ $("#myaccount").change(function() {
 
 
 $("#addiou").click(function() {
-  add_IOU($("#creditor").val(), $("#amount").val());
+  addTransaction($("#creditor").val(), $("#amount").val());
   updateUserInfo();
   updateHistory();
   updateActiveUsers();
