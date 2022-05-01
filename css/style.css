@@ -1,4 +1,4 @@
-@import '~mdb-ui-kit/css/mdb.min.css';
+
 body {
  	font-family: 'Source Sans Pro', 'Arial';
 	background-color:#EEE;
@@ -8,3 +8,7 @@ body {
 	width: 50%;
 }
 
+.selected-cell {
+
+	background-color: lightblue;
+}

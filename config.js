@@ -1,2 +1,2 @@
 debugging = false; //true to see console messages
-contractAddress = "0x45ba85Bd81Da729FEF6E00055eE8C692D7C4e8Ff";
+contractAddress = "0xAf4379327EaBD82484a1C60c245412EF1Ed3Da8e";

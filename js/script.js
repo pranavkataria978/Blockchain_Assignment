@@ -1,4 +1,4 @@
-// web3js configuration
+// configuring web3js
 if (typeof web3 !== 'undefined')  {
 	web3 = new Web3(web3.currentProvider);
 } else {
@@ -9,7 +9,7 @@ abiDecoder.addABI(abi);
 var BlockchainSplitwiseContractSpec = web3.eth.contract(abi);
 var BlockchainSplitwise = BlockchainSplitwiseContractSpec.at(contractAddress)
 
-function getAssociatedTransfers(user){
+function getUserTransactions(user){
     var nTfs = BlockchainSplitwise.getTransactionsCount(user).toNumber();
     var transfers = []
     for (i =0; i<nTfs; i++){
@@ -19,9 +19,8 @@ function getAssociatedTransfers(user){
 }
 
 
-// Returns a list of all users in the system that 
-// currently owe or is being owed money
-function getUsers(addressOfContract) {
+// To get Users that are involved in some unsettled transaction
+function getUnsettledUsers(addressOfContract) {
     var users = new Set();
     var nTfs = BlockchainSplitwise.LatestTransferIndex().toNumber();
     for (i = 1; i<=nTfs; i++){
@@ -33,18 +32,43 @@ function getUsers(addressOfContract) {
 	return Array.from(users); 
 }
 
-// Get the total amount owed by the user specified by 'user'
-function getTotalOwed(user) {
+
+function getTotalToGive(user) {
     var owed = 0;
-    getAssociatedTransfers(user)
+    getUserTransactions(user)
         .map(function (t) {
-            owed += BlockchainSplitwise.getTransactionAmount(t).toNumber();
+            
+                owed += BlockchainSplitwise.getTransactionAmount(t).toNumber();
+
+            
         })
     return owed;
 }
 
-// returns last active time since UNIX epoch or null.
-function getLastActive(user) {
+function getTotalGain(user){
+
+    var togain = 0;
+    
+    var nTfs = BlockchainSplitwise.LatestTransferIndex().toNumber();
+    for (i = 1; i<=nTfs; i++){
+        if (!BlockchainSplitwise.isSettled(i)){
+            // users.add(BlockchainSplitwise.getTransasctionDebtor(i));
+            // users.add(BlockchainSplitwise.getTransactionCreditor(i));
+
+            if(user === BlockchainSplitwise.getTransactionCreditor(i)){
+
+                togain += BlockchainSplitwise.getTransactionAmount(i).toNumber();
+
+            }
+
+        }
+    }
+	return togain
+    
+}
+
+// Last Active Time of Wallter
+function getLastTimeActive(user) {
     var lastIndex = BlockchainSplitwise.getTransactionsCount(user).toNumber()-1;
     if (lastIndex < 0 ) return null;
 
@@ -52,18 +76,15 @@ function getLastActive(user) {
     return BlockchainSplitwise.getTransferTimeStamp(lastTransferId).toNumber();
 }
 
-// adds an IOU owed to the creditor for amount
-// Note: for better security, some operations should be deferred 
-// to the backend. However, gas-use will rocket. ok for now; 
-// this was probably the intended approach considering provided the BFS pathfinder
-function addTransaction(creditor, amount) {
+
+function addNewTransaction(creditor, amount) {
     var sender = $("#myaccount").find(":selected").text();
-    var path = doBFS(creditor, sender);
+    var path = BreadthFirstSearch(creditor, sender);
     if (path == null || path.length == 0){
-        explicit_addTransaction(sender, creditor, amount);
-        log(sender.substring(38,42) + "---"+amount+"--->" + creditor.substring(38,42));
+        addNewTransactionFinal(sender, creditor, amount);
+        debugger_log(sender.substring(38,42) + "---"+amount+"--->" + creditor.substring(38,42));
     } else {
-        log("cycle detected: ", path);
+        debugger_log("cycle detected: ", path);
         var history = [{id: -1, value: parseInt(amount, 10)}];
         for (i = path.length-1; i>0; i--){
             history.push({
@@ -71,9 +92,9 @@ function addTransaction(creditor, amount) {
                 value: BlockchainSplitwise.amountOwed(path[i-1], path[i]).toNumber()
             });
         }
-        log("history", history);
+        debugger_log("history", history);
         history.sort((a,b) => a.value - b.value);
-        log("sorted", history);
+        debugger_log("sorted", history);
 
         if (history[0].id == -1){
             for (i=1; i<history.length; i++){
@@ -84,7 +105,7 @@ function addTransaction(creditor, amount) {
             // modify minimum transaction
             BlockchainSplitwise.modifyTransaction(history[0].id, history[0].value);
             // add new transaction with the subtracted amount
-            explicit_addTransaction(sender, creditor, amount-history[0].value);
+            addNewTransactionFinal(sender, creditor, amount-history[0].value);
             
             // replace existed transaction with the subtracted amount
             for (i=1; i<history.length; i++){
@@ -99,8 +120,8 @@ function addTransaction(creditor, amount) {
     }
 }
 
-function explicit_addTransaction(debtor, creditor, amount){
-    log("IOU "+ web3.eth.defaultAccount + " "+ " " + creditor + " " + amount, null)
+function addNewTransactionFinal(debtor, creditor, amount){
+    debugger_log("IOU "+ web3.eth.defaultAccount + " "+ " " + creditor + " " + amount, null)
     BlockchainSplitwise.addTransaction.sendTransaction(creditor, amount,
         {
             from: debtor,
@@ -116,25 +137,14 @@ function getSortedHistory(path, amount){
             value: BlockchainSplitwise.amountOwed(path[i-1], path[i]).toNumber()
         });
     }
-    log("history", history);
+    debugger_log("history", history);
     history.sort((a,b) => a.value - b.value);
-    log("sorted", history);
+    debugger_log("sorted", history);
     return history;
 }
 
-// gets neighbours of a given user in the transfer graph
-function getNeighbors(user){
-    neighbours = [];
-    getAssociatedTransfers(user)
-        .map(function (t) {
-            neighbours.push(BlockchainSplitwise.getTransactionCreditor(t));
-        })
-    return neighbours;
-}
 
-
-// this function is used as-is, provided by the project starter code.
-function doBFS(start, end) {
+function BreadthFirstSearch(start, end) {
 	var queue = [[start]];
 	while (queue.length > 0) {
 		var cur = queue.shift();
@@ -142,7 +152,13 @@ function doBFS(start, end) {
 		if (lastNode === end) {
 			return cur;
 		} else {
-			var neighbors = getNeighbors(lastNode);
+			// var neighbors = getNeighbors(lastNode);
+            var neighbors = [];
+            getUserTransactions(lastNode)
+                .map(function (t) {
+                    neighbors.push(BlockchainSplitwise.getTransactionCreditor(t));
+                })
+            // return neighbours;
 			for (var i = 0; i < neighbors.length; i++) {
 				queue.push(cur.concat([neighbors[i]]));
 			}
@@ -151,7 +167,7 @@ function doBFS(start, end) {
 	return null;
 }
 
-function log(description, obj) {
+function debugger_log(description, obj) {
     if (debugging){
         var logData = description + ": " + (obj !== null ? JSON.stringify(obj, null, 2): "") + "\n\n"; 
         $("#log").html($("#log").html() + logData);
@@ -170,4 +186,25 @@ function data(id){
 
     return data_final
 
+}
+
+function getFinalList(user){
+
+    var list = []
+    var nTfs = BlockchainSplitwise.LatestTransferIndex().toNumber();
+    for (i = 1; i<=nTfs; i++){
+        if (!BlockchainSplitwise.isSettled(i)){
+            // users.add(BlockchainSplitwise.getTransasctionDebtor(i));
+            // users.add(BlockchainSplitwise.getTransactionCreditor(i));
+
+            if(user === BlockchainSplitwise.getTransactionCreditor(i) || user === BlockchainSplitwise.getTransasctionDebtor(i)){
+
+                list.push(i)
+                
+            }
+
+        }
+    }
+
+    return list
 }

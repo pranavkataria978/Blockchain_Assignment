@@ -66,6 +66,14 @@ contract Splitwise is Specifications {
     {
         return transaction.debitTransfers(_user, _index);
     }
+
+    function getIthCredit(address _user, uint _index)
+        external
+        view
+        returns (uint)
+    {
+        return transaction.creditTransfers(_user, _index);
+    }
     
     function getTransactionHistory(address _debtor, address _creditor)
         external
@@ -89,6 +97,14 @@ contract Splitwise is Specifications {
         returns (uint)
     {
         return transaction.getCountOfTransactions(_user);
+    }
+
+    function getCreditTransactionsCount(address _user)
+        external
+        view
+        returns (uint)
+    {
+        return transaction.getCountOfCreditTransactions(_user);
     }
 
      function isSettled(uint id)

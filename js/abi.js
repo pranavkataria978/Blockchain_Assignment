@@ -2,6 +2,44 @@ var contractAddress;
 var debugging;
 var abi = 
 [
+
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": false,
+					"internalType": "uint256",
+					"name": "txn_Id",
+					"type": "uint256"
+				},
+				{
+					"indexed": false,
+					"internalType": "bool",
+					"name": "isNew",
+					"type": "bool"
+				},
+				{
+					"indexed": false,
+					"internalType": "address",
+					"name": "debtor",
+					"type": "address"
+				},
+				{
+					"indexed": false,
+					"internalType": "address",
+					"name": "creditor",
+					"type": "address"
+				},
+				{
+					"indexed": false,
+					"internalType": "uint256",
+					"name": "amount",
+					"type": "uint256"
+				}
+			],
+			"name": "TransferProcessed",
+			"type": "event"
+		},
 		{
 			"constant": false,
 			"inputs": [
@@ -49,43 +87,6 @@ var abi =
 			"type": "constructor"
 		},
 		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "txn_Id",
-					"type": "uint256"
-				},
-				{
-					"indexed": false,
-					"internalType": "bool",
-					"name": "isNew",
-					"type": "bool"
-				},
-				{
-					"indexed": false,
-					"internalType": "address",
-					"name": "debtor",
-					"type": "address"
-				},
-				{
-					"indexed": false,
-					"internalType": "address",
-					"name": "creditor",
-					"type": "address"
-				},
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "amount",
-					"type": "uint256"
-				}
-			],
-			"name": "TransferProcessed",
-			"type": "event"
-		},
-		{
 			"constant": true,
 			"inputs": [
 				{
@@ -100,6 +101,53 @@ var abi =
 				}
 			],
 			"name": "amountOwed",
+			"outputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"internalType": "address",
+					"name": "_user",
+					"type": "address"
+				}
+			],
+			"name": "getCreditTransactionsCount",
+			"outputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"internalType": "address",
+					"name": "_user",
+					"type": "address"
+				},
+				{
+					"internalType": "uint256",
+					"name": "_index",
+					"type": "uint256"
+				}
+			],
+			"name": "getIthCredit",
 			"outputs": [
 				{
 					"internalType": "uint256",
@@ -325,4 +373,5 @@ var abi =
 			"stateMutability": "view",
 			"type": "function"
 		}
+	
 ]

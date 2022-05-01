@@ -14,7 +14,8 @@ contract Transaction {
     
     mapping (uint => Transfer) public Transfers;
     mapping (address => uint[]) public debitTransfers;
-    
+     mapping (address => uint[]) public creditTransfers;
+
     uint public LatestTransactionId = 0;
     
    
@@ -35,6 +36,7 @@ contract Transaction {
         else if(Transfers[LatestTransactionId].amount < 1000)
             Transfers[LatestTransactionId].txn_slab = "low";
         debitTransfers[_debtor].push(LatestTransactionId);
+        creditTransfers[_creditor].push(LatestTransactionId);
     }
     
      function getTransactionHistory(address _debtor, address _creditor) 
@@ -51,6 +53,21 @@ contract Transaction {
         return 0;
     }
     
+    function getCreditTransactionHistory(address _debtor, address _creditor) 
+        public 
+        view 
+        returns (uint)
+    {
+        uint[] memory relevantTfs = creditTransfers[_creditor];
+        for (uint i = 0; i < relevantTfs.length; i++){
+            if (Transfers[relevantTfs[i]].debtor == _debtor) {
+                return Transfers[relevantTfs[i]].id;
+            }
+        }
+        return 0;
+    }
+
+
     function UpdateTransaction(uint id, uint _amount) external {
         Transfers[id].amount += _amount;
         if(Transfers[id].amount >= 1000)
@@ -75,6 +92,14 @@ contract Transaction {
         return debitTransfers[_debtor].length;
     }
     
+    function getCountOfCreditTransactions(address _creditor) 
+        public 
+        view 
+        returns (uint)
+    {
+        return creditTransfers[_creditor].length;
+    }
+
       function isSettled(uint id) 
         external 
         view 
@@ -126,6 +151,15 @@ contract Transaction {
     {
         return debitTransfers[_user][_index];
     }
+
+    function getIthCredit(address _user, uint _index) 
+        external 
+        view 
+        returns (uint)
+    {
+        return creditTransfers[_user][_index];
+    }
+    
     
     function getTransferTimeStamp(uint id) 
         external 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Web3.js Demo</title>
+    <title>Splitwise</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <script src="./js/web3.min.js"></script>
     <script src="./js/abi-decoder.js"></script>
@@ -22,7 +22,7 @@
     <div class="main" >
 
       
-      <h2>Add IOU</h2>
+      <h2>Add Splitwise Transaction</h2>
 
       <div class="form-outline mb-4">
       <input type="text" id="creditor" class = "form-control" />
@@ -34,7 +34,7 @@
       <label  class = "form-label" for="amount" >Amount you owe them:</label>
       </div>
 
-      <button id="addiou" class = "btn btn-primary">Add IOU</button>
+      <button id="addiou" class = "btn btn-primary mb-6">Add Transaction</button>
 
     
     </div>
@@ -42,7 +42,8 @@
     <div class="panel panel_right">
       <h2>My Account</h2>
       <select id="myaccount" class="account"></select>
-      <p>Total Owed: <span id="total_owed"></span></p>
+      <p>Total Owed To Me: <span id="total_owed"></span></p>
+      <p>Total I Owe To Others:<span id = "total_to_give"></span> </p>
       <span id="who_owes"></span>
       <p>Last Activity: <span id="last_active"></span></p>
     </div>

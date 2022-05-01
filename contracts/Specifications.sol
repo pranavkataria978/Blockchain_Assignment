@@ -10,6 +10,12 @@ contract Specifications {
         require(_user != msg.sender, "We Cannot Credit Ourselves");
         _;
     }
+
+    modifier validDebtor(address _user){
+        require(_user != address(0), "Invalid Zero Address");
+        require(_user != msg.sender, "We Cannot Debit from Ourselves");
+        _;
+    }
     
     event TransferProcessed(
         uint txn_Id,
